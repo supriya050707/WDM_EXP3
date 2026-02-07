@@ -41,67 +41,73 @@ for each wear category.</p>
 ```python
 from collections import defaultdict
 from itertools import combinations
+
 # Function to generate candidate k-item sequences
 def generate_candidates(dataset, k):
+    c = defaultdict(int)
+    for seq in dataset:
+        flat_seq = []
+        for itemset in seq:
+            if isinstance(itemset, str):
+                flat_seq.extend(itemset.split(','))
+            else:
+                flat_seq.extend(itemset)
 
+        # count each combination once per sequence
+        for comb in set(combinations(sorted(flat_seq), k)):
+            c[comb] += 1
 
-    /WRITE YOUR CODE HERE/
+    res = {}
+    for item, support in c.items():
+        if support >= min_support:
+            res[item] = support
+    return res
 
-
-#Function to perform GSP algorithm
+# Function to perform GSP algorithm
 def gsp(dataset, min_support):
+    k = 1
+    fp = defaultdict(int)
+    while True:
+        c = generate_candidates(dataset, k)
+        if not c:
+            break
+        fp.update(c)
+        k += 1
+    return fp
 
-
-  /WRITE YOUR CODE HERE/
-
-
-#Example dataset for each category
+# Example dataset
 top_wear_data = [
- ["blouse", "t-shirt", "tank_top"],
- ["hoodie", "sweater", "top"],["hoodie"],["hoodie","sweater"]
- #Add more sequences for top wear
+    [["a"],["b"],["c"],["b","e"],["c"],["f"],["g"],["a","b","e"]],
+    [["a"],["d"],["b","c"],["c"],["f","g"],["c","h"]],
+    [["b"],["c"],["a","d"],["e"],["b"],["f"],["c","d","f","g","h"]],
+    [["c"],["e","c"],["e","h"]] 
 ]
-bottom_wear_data = [
- ["jeans", "trousers", "shorts"],
- ["leggings", "skirt", "chinos"],
- # Add more sequences for bottom wear
-]
-party_wear_data = [
- ["cocktail_dress", "evening_gown", "blazer"],
- ["party_dress", "formal_dress", "suit"],
- ["party_dress", "formal_dress", "suit"],
- ["party_dress", "formal_dress", "suit"],
- ["party_dress", "formal_dress", "suit"],
- ["party_dress"],["party_dress"],
- # Add more sequences for party wear
-]
-#Minimum support threshold
-min_support = 2
-#Perform GSP algorithm for each category
+
+min_support = 3
+
+# Run GSP
 top_wear_result = gsp(top_wear_data, min_support)
-bottom_wear_result = gsp(bottom_wear_data, min_support)
-party_wear_result = gsp(party_wear_data, min_support)
-#Output the frequent sequential patterns for each category
-print("Frequent Sequential Patterns - Top Wear:")
-if top_wear_result:
- for pattern, support in top_wear_result.items():
- print(f"Pattern: {pattern}, Support: {support}")
-else:
- print("No frequent sequential patterns found in Top Wear.")
-print("\nFrequent Sequential Patterns - Bottom Wear:")
-if bottom_wear_result:
- for pattern, support in bottom_wear_result.items():
- print(f"Pattern: {pattern}, Support: {support}")
-else:
- print("No frequent sequential patterns found in Bottom Wear.")
-print("\nFrequent Sequential Patterns - Party Wear:")
-if party_wear_result:
- for pattern, support in party_wear_result.items():
- print(f"Pattern: {pattern}, Support: {support}")
-else:
- print("No frequent sequential patterns found in Party Wear.")
+
+# ---------- TABULAR OUTPUT ----------
+patterns_by_length = defaultdict(list)
+
+for pattern, support in top_wear_result.items():
+    patterns_by_length[len(pattern)].append((pattern, support))
+
+print("\nFrequent Sequential Patterns - Top Wear\n")
+
+for length in sorted(patterns_by_length):
+    print(f"{length}-Length Patterns")
+    print("-" * 30)
+    print(f"{'Pattern':20} {'Support'}")
+    print("-" * 30)
+    for pattern, support in patterns_by_length[length]:
+        print(f"{str(pattern):20} {support}")
+    print()
 ```
 ### Output:
+
+<img width="1025" height="986" alt="Screenshot 2026-02-06 162121" src="https://github.com/user-attachments/assets/eef8f5a5-374e-45c3-891a-c2406d9379d7" />
 
 ### Visualization:
 ```python
@@ -131,5 +137,8 @@ visualize_patterns_line(party_wear_result, 'Party Wear')
 ```
 ### Output:
 
+<img width="1469" height="781" alt="Screenshot 2026-02-06 163006" src="https://github.com/user-attachments/assets/268fa9be-ebeb-44ce-8c3c-0a2bf768be68" />
+
 
 ### Result:
+Thus the implementation of the GSP algorithm in python has been successfully executed.
